@@ -1,0 +1,37 @@
+name: Build and deploy in production
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  build:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: yarn --frozen-lockfile
+      - run: yarn build --clean
+      - name: Deploy to Server
+        uses: easingthemes/ssh-deploy@v2.1.5
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          ARGS: "-rltgoDzvO --exclude .cache --exclude .git --exclude .github --exclude public --exclude .env* --delete"
+          SOURCE: "./"
+          REMOTE_HOST: 'api.egt.community'
+          REMOTE_USER: 'noderunner'
+          TARGET: '/var/node-apps/egt-backend'
+
+    env:
+      CI: true
+      NODE_ENV: 'production'
