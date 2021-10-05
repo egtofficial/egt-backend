@@ -6,4 +6,7 @@ module.exports = ({ env }) => ({
       secret: env('ADMIN_JWT_SECRET', '721cd3c08900a6f2f90c844135539962'),
     },
   },
+  cron: {
+    enabled: true,
+  },
 });
