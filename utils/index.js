@@ -1,5 +1,5 @@
 const { intersection } = require('lodash')
-const { isSameDay, parseISO, setYear } = require('date-fns');
+const { isSameDay, parseISO, setYear, addDays } = require('date-fns');
 
 const attachPrimaryMail = (m) => ({
   ...m,
@@ -11,7 +11,15 @@ const hasBirthday = (member) => {
     throw new Error(`property contactDetails missing.`);
 
   const today = new Date();
-  return (isSameDay(setYear(parseISO(member.contactDetails.dateOfBirth), today.getFullYear()), new Date()))
+  return (isSameDay(setYear(parseISO(member.contactDetails.dateOfBirth), today.getFullYear()), today))
+}
+
+const hasSoonBirthday = (member) => {
+  if (!member.contactDetails)
+    throw new Error(`property contactDetails missing.`);
+
+  const today = new Date();
+  return (isSameDay(setYear(parseISO(member.contactDetails.dateOfBirth), today.getFullYear()), addDays(today, 3)))
 }
 
 const isMember = (member) => {
@@ -20,6 +28,11 @@ const isMember = (member) => {
 
   return member.joinDate != null && member.memberGroups.length > 0;
 }
+
+const hasDiscordUsername = (member) => 
+  member.contactDetails.companyName != null && member.contactDetails.companyName.trim() !== ''
+
+const getMentionString = (discordMember, easyvereinMember) => discordMember ? `<@${discordMember.user.id}>` : `»${easyvereinMember.contactDetails.companyName}«`;
 
 const isActiveMember = (member) => {
   if (!member.memberGroups || typeof(member.memberGroups) === 'string')
@@ -40,7 +53,10 @@ const isPassiveMember = (member) => {
 module.exports = {
   attachPrimaryMail,
   hasBirthday,
+  hasSoonBirthday,
   isMember,
   isActiveMember,
   isPassiveMember,
+  hasDiscordUsername,
+  getMentionString,
 };

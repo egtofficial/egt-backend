@@ -1,5 +1,8 @@
 'use strict';
 const { setApiToken } = require('easyverein');
+const { remindBirthdayCard, sendBirthdayNotifications } = require('../../utils/birthday');
+const { refreshCache } = require('../../utils/cron');
+const { client } = require('../../utils/discord');
 
 /**
  * An asynchronous bootstrap function that runs before
@@ -13,4 +16,10 @@ const { setApiToken } = require('easyverein');
 
 module.exports = async () => {
   setApiToken(process.env.EASYVEREIN_TOKEN);
+  client.login(process.env.BOT_TOKEN);
+  setTimeout(async () => {
+    await refreshCache();
+    //await sendBirthdayNotifications();
+    //await remindBirthdayCard();
+  }, 8000)
 };

@@ -1,5 +1,6 @@
 'use strict';
-const { sendBirthdayNotifications } = require('../../utils/birthday');
+const { sendBirthdayNotifications, remindBirthdayCard } = require('../../utils/birthday');
+const { refreshCache } = require('../../utils/cron');
 
 /**
  * Cron config that gives you an opportunity
@@ -13,9 +14,21 @@ const { sendBirthdayNotifications } = require('../../utils/birthday');
 
 module.exports = {
   /**
-   * Send birthday notifications ebery day at 10:30
+   * Send birthday notifications every day at 10:30
    */
-   '30 10 * * *': () => {
+  '30 10 * * *': () => {
     sendBirthdayNotifications();
+  },
+  /**
+ * Remind for preparing birthday cards every day at 14:00
+ */
+  '0 14 * * *': () => {
+    remindBirthdayCard();
+  },
+  /**
+   * Refresh cashes every 30 minutes
+   */
+  '*/30 * * * *': () => {
+    refreshCache();
   },
 };
