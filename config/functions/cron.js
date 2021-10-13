@@ -1,6 +1,6 @@
 'use strict';
 const { sendBirthdayNotifications, remindBirthdayCard } = require('../../utils/birthday');
-const { refreshCache } = require('../../utils/cron');
+const { refreshCache, healthCheck } = require('../../utils/cron');
 
 /**
  * Cron config that gives you an opportunity
@@ -24,6 +24,12 @@ module.exports = {
  */
   '0 14 * * *': () => {
     remindBirthdayCard();
+  },
+  /**
+   * Perform member and discord health check every thursday at 11:15
+  */
+  '15 11 * * 4': () => {
+    healthCheck();
   },
   /**
    * Refresh cashes every 30 minutes

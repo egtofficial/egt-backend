@@ -1,7 +1,7 @@
 'use strict';
 const { setApiToken } = require('easyverein');
 const { remindBirthdayCard, sendBirthdayNotifications } = require('../../utils/birthday');
-const { refreshCache } = require('../../utils/cron');
+const { refreshCache, healthCheck } = require('../../utils/cron');
 const { client } = require('../../utils/discord');
 
 /**
@@ -19,7 +19,11 @@ module.exports = async () => {
   client.login(process.env.BOT_TOKEN);
   setTimeout(async () => {
     await refreshCache();
-    //await sendBirthdayNotifications();
-    //await remindBirthdayCard();
+
+    if (process.env.NODE_ENV === 'development') {
+      await healthCheck();
+      await sendBirthdayNotifications();
+      await remindBirthdayCard();
+    }
   }, 8000)
 };
