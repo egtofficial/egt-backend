@@ -23,6 +23,10 @@ const fetchMember = async (discordTag) => {
 }
 
 const postOrgaChannel = (content) => {
+  if (process.env.SIMULATE_POSTS === 'true') {
+    console.log(content)
+    return
+  }
   if (!orgaChannel) {
     if (!process.env.ORGA_CHANNEL)
       throw new Error('env variable ORGA_CHANNEL not set.')

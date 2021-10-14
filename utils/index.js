@@ -22,13 +22,6 @@ const hasSoonBirthday = (member) => {
   return (isSameDay(setYear(parseISO(member.contactDetails.dateOfBirth), today.getFullYear()), addDays(today, 3)))
 }
 
-const isMember = (member) => {
-  if (!member.memberGroups || typeof (member.memberGroups) === 'string')
-    throw new Error(`property memberGroups missing or not an object.`);
-
-  return member.joinDate != null && member.memberGroups.length > 0;
-}
-
 const hasDiscordUsername = (member) =>
   member.contactDetails.companyName != null && member.contactDetails.companyName.trim() !== ''
 
@@ -48,6 +41,13 @@ const isPassiveMember = (member) => {
 
   const flat = member.memberGroups.map(g => g.short);
   return flat.includes('PM');
+}
+
+const isMember = (member) => {
+  if (!member.memberGroups || typeof (member.memberGroups) === 'string')
+    throw new Error(`property memberGroups missing or not an object.`);
+
+  return member.joinDate != null && (isActiveMember(member) || isPassiveMember(member));
 }
 
 /**
@@ -100,6 +100,14 @@ const collectMemberFacts = (member, discordMember, birthdayAge, referenceDate = 
   const hasPassiveMemberRole = discordMember ? hasPassiveMemberDiscordRole(discordMember) : false;
   const hasActiveMemberRole = discordMember ? hasActiveMemberDiscordRole(discordMember) : false;
 
+  const jobs = {
+    isOrga: hasDiscordRole(roles, 'Orga'),
+    isDepartmentManager: hasDiscordRoleMatch(roles, 'Bereichsleitung'),
+    isPR: hasDiscordRole(roles, 'PR Team'),
+    isTeamManager: hasDiscordRoleMatch(roles, 'Teamleitung'),
+    isTeamPlayer: hasDiscordRoleMatch(roles, '[EGT]'),
+  }
+
   return {
     discordNick: discordMember ? discordMember.nickname : null,
     isActive,
@@ -123,11 +131,8 @@ const collectMemberFacts = (member, discordMember, birthdayAge, referenceDate = 
         passiveMember: isPassive && !hasPassiveMemberRole,
       },
     },
-    isOrga: hasDiscordRole(roles, 'Orga'),
-    isPR: hasDiscordRole(roles, 'PR Team'),
-    isDepartmentManager: hasDiscordRoleMatch(roles, 'Bereichsleitung'),
-    isTeamManager: hasDiscordRoleMatch(roles, 'Teamleitung'),
-    isTeamPlayer: hasDiscordRoleMatch(roles, '[EGT]'),
+    ...jobs,
+    hasIllegalJobs: (!isActive && (jobs.isOrga || jobs.isDepartmentManager || jobs.isPR || jobs.isTeamManager || jobs.isTeamPlayer)),
     teams: getTeams(roles),
     // TODO: Let's make this configurable in the Strapi UI
     games: {

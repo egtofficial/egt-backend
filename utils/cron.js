@@ -62,6 +62,19 @@ ${facts.discordRoles.memberRoleMissing
         );
         return;
       }
+
+      if (facts.hasIllegalJobs) {
+        const jobs = [
+          ...(facts.isOrga ? ['Orga'] : []),
+          ...(facts.isDepartmentManager ? ['Bereichsleitung'] : []),
+          ...(facts.isPR ? ['PR-Team'] : []),
+          ...(facts.isTeamManager ? ['Teamleitung'] : []),
+          ...(facts.isTeamPlayer ? ['Teamspieler'] : []),
+        ];
+        postOrgaChannel(`
+🚨 Das passive Mitglied **${m.contactDetails.firstName} ${getMentionString(dcMember, m)} ${m.contactDetails.familyName}** hat Rollen und Verantwortlichkeiten, die eine **aktive Mitgliedschaft erforderlich** machen:  
+> **${jobs.join(', ')}**`);
+      }
     })
     return Promise.all(promises).then(() => {
       postOrgaChannel(`
