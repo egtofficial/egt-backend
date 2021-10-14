@@ -1,0 +1,20 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/jobs/",
+      "handler": "job.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/jobs/healthcheck/",
+      "handler": "job.healthcheck",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

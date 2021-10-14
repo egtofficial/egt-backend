@@ -3,6 +3,7 @@ const { setApiToken } = require('easyverein');
 const { remindBirthdayCard, sendBirthdayNotifications } = require('../../utils/birthday');
 const { refreshCache, healthCheck } = require('../../utils/cron');
 const { client } = require('../../utils/discord');
+const { ensureRole } = require('../../utils/roles');
 
 /**
  * An asynchronous bootstrap function that runs before
@@ -15,6 +16,10 @@ const { client } = require('../../utils/discord');
  */
 
 module.exports = async () => {
+  let roles = await strapi.plugins['users-permissions'].services.userspermissions.getRoles();
+  await ensureRole(roles, 'public');
+  await ensureRole(roles, 'authenticated');
+
   setApiToken(process.env.EASYVEREIN_TOKEN);
   client.login(process.env.BOT_TOKEN);
   setTimeout(async () => {
