@@ -14,8 +14,7 @@ const healthCheck = async () => {
 
     const peopleToCheck = members.filter(m => isMember(m))
 
-    postOrgaChannel(`**Achtung**: Ich führe den wöchentlichen Mitglieder Health-Check und schaue mir ${peopleToCheck.length} Mitglieder in unserer Vereinsverwaltung an…`);
-    postOrgaChannel(`Für die Richtigkeit meiner Angaben gebe ich (noch) keine Garantie, bin noch am Lernen. 😅`)
+    postOrgaChannel(`**Achtung**: Ich führe den **Mitglieder Health-Check** durch und schaue mir ${peopleToCheck.length} Mitglieder in unserer Vereinsverwaltung an…`);
 
     const withoutDiscordAccount = peopleToCheck.filter(m => !m.contactDetails.companyName);
     if (withoutDiscordAccount.length > 0) {
