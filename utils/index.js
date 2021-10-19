@@ -73,6 +73,20 @@ const hasPassiveMemberDiscordRole = (discordMember) => {
   return hasDiscordRole(roles, 'Passives Vereinsmitglied')
 }
 
+/**
+ * Returns true if the roles contains an active team as player (Sub does not count as player)
+ */
+const getActiveTeamsPlaying = (roles, activeTeams) => {
+  const playerInActiveTeams = activeTeams.map(t => {
+    const found = find(roles, (r) => r === `[EGT] ${t.name}` && !r !== `[EGT] ${t.name}(Sub)`);
+    return found ? t.name : null
+  }).filter(i => i);
+  return playerInActiveTeams;
+}
+
+/**
+ * Get all teams, the person is part of (also as sub, which would not count as active player job)
+ */
 const getTeams = (roles) => {
   const leader = roles.filter(r => r.toLowerCase().includes('teamleitung'));
   const player = roles.filter(r => r.includes('[EGT]'));
@@ -91,68 +105,78 @@ const getTeams = (roles) => {
  * @param {*} referenceDate The reference date for all date calculations
  * @returns 
  */
-const collectMemberFacts = (member, discordMember, birthdayAge, referenceDate = new Date()) => {
-  const joinDate = parseISO(member.joinDate);
-  const roles = discordMember ? discordMember._roles.map(roleId => discordMember.guild.roles.cache.get(roleId).name) : [];
-
-  const isActive = isActiveMember(member);
-  const isPassive = isPassiveMember(member);
-  const hasPassiveMemberRole = discordMember ? hasPassiveMemberDiscordRole(discordMember) : false;
-  const hasActiveMemberRole = discordMember ? hasActiveMemberDiscordRole(discordMember) : false;
-
-  const jobs = {
-    isOrga: hasDiscordRole(roles, 'Orga'),
-    isDepartmentManager: hasDiscordRoleMatch(roles, 'Bereichsleitung'),
-    isPR: hasDiscordRole(roles, 'PR Team'),
-    isTeamManager: hasDiscordRoleMatch(roles, 'Teamleitung'),
-    isTeamPlayer: hasDiscordRoleMatch(roles, '[EGT]'),
-  }
-
-  return {
-    discordNick: discordMember ? discordMember.nickname : null,
-    isActive,
-    isPassive,
-    memberSinceInMonths: differenceInMonths(referenceDate, joinDate),
-    memberSinceInYears: differenceInYears(referenceDate, joinDate),
-    relativeMemberTime: formatDistance(joinDate, referenceDate),
-    membershipNoEqualsAge: parseInt(member.membershipNumber) === birthdayAge,
-    membershipNoEqualsBirthDate: referenceDate.getDate() === birthdayAge,
-    membershipNoEqualsBirthMonth: referenceDate.getMonth() + 1 === birthdayAge,
-    discordRoles: {
-      list: roles,
-      memberRoleMissing: (isPassive && !hasPassiveMemberRole) || (isActive && !hasActiveMemberRole),
-      memberRolesCorrect:
-        (isPassive && hasPassiveMemberRole && !hasActiveMemberRole)
-        || (isActive && hasActiveMemberRole && !hasPassiveMemberRole),
-      activeMember: hasActiveMemberRole,
-      passiveMember: hasPassiveMemberRole,
-      missing: {
-        activeMember: isActive && !hasActiveMemberRole,
-        passiveMember: isPassive && !hasPassiveMemberRole,
-      },
-    },
-    ...jobs,
-    hasIllegalJobs: (!isActive && (jobs.isOrga || jobs.isDepartmentManager || jobs.isPR || jobs.isTeamManager || jobs.isTeamPlayer)),
-    teams: getTeams(roles),
-    // TODO: Let's make this configurable in the Strapi UI
-    games: {
-      aoe: hasDiscordRoleMatch(roles, 'Age of Empires'),
-      animalCrossing: hasDiscordRole(roles, 'Animal Crossing'),
-      counterStrike: hasDiscordRole(roles, 'Counter Strike'),
-      fifa: hasDiscordRole(roles, 'FIFA'),
-      hearthstone: hasDiscordRole(roles, 'Hearthstone'),
-      lol: hasDiscordRole(roles, 'League of Legends'),
-      lor: hasDiscordRole(roles, 'Legends of Runeterra'),
-      monsterHunter: hasDiscordRole(roles, 'Monster Hunter'),
-      overwatch: hasDiscordRole(roles, 'Overwatch'),
-      pokemon: hasDiscordRole(roles, 'Pokemon'),
-      rainbow6: hasDiscordRole(roles, 'Rainbow 6'),
-      rocketLeague: hasDiscordRole(roles, 'Rocket League'),
-      smashBros: hasDiscordRoleMatch(roles, 'Smash Bros'),
-      starcraft: hasDiscordRoleMatch(roles, 'Starcraft'),
-      tft: hasDiscordRole(roles, 'TFT'),
-      valorant: hasDiscordRole(roles, 'Valorant'),
+const collectMemberFacts = (member, discordMember, birthdayAge, referenceDate = new Date(), activeTeams = []) => {
+  try {
+    const joinDate = parseISO(member.joinDate);
+    const roles = discordMember ? discordMember._roles.map(roleId => discordMember.guild.roles.cache.get(roleId).name) : [];
+  
+    const isActive = isActiveMember(member);
+    const isPassive = isPassiveMember(member);
+    const hasPassiveMemberRole = discordMember ? hasPassiveMemberDiscordRole(discordMember) : false;
+    const hasActiveMemberRole = discordMember ? hasActiveMemberDiscordRole(discordMember) : false;
+  
+    const playerInActiveTeams = getActiveTeamsPlaying(roles, activeTeams);
+  
+    const jobs = {
+      isOrga: hasDiscordRole(roles, 'Orga'),
+      isDepartmentManager: hasDiscordRoleMatch(roles, 'Bereichsleitung'),
+      isPR: hasDiscordRole(roles, 'PR Team'),
+      isTeamManager: hasDiscordRoleMatch(roles, 'Teamleitung'),
+      isTeamPlayer: playerInActiveTeams.length > 0,
     }
+  
+    return {
+      discordNick: discordMember ? discordMember.nickname : null,
+      isActive,
+      isPassive,
+      memberSinceInMonths: differenceInMonths(referenceDate, joinDate),
+      memberSinceInYears: differenceInYears(referenceDate, joinDate),
+      relativeMemberTime: formatDistance(joinDate, referenceDate),
+      membershipNoEqualsAge: parseInt(member.membershipNumber) === birthdayAge,
+      membershipNoEqualsBirthDate: referenceDate.getDate() === birthdayAge,
+      membershipNoEqualsBirthMonth: referenceDate.getMonth() + 1 === birthdayAge,
+      discordRoles: {
+        list: roles,
+        memberRoleMissing: (isPassive && !hasPassiveMemberRole) || (isActive && !hasActiveMemberRole),
+        memberRolesCorrect:
+          (isPassive && hasPassiveMemberRole && !hasActiveMemberRole)
+          || (isActive && hasActiveMemberRole && !hasPassiveMemberRole),
+        activeMember: hasActiveMemberRole,
+        passiveMember: hasPassiveMemberRole,
+        missing: {
+          activeMember: isActive && !hasActiveMemberRole,
+          passiveMember: isPassive && !hasPassiveMemberRole,
+        },
+      },
+      ...jobs,
+      hasIllegalJobs: (!isActive && (jobs.isOrga || jobs.isDepartmentManager || jobs.isPR || jobs.isTeamManager || jobs.isTeamPlayer)),
+      teams: getTeams(roles),
+      activeTeamsPlaying: playerInActiveTeams,
+      // TODO: Let's make this configurable in the Strapi UI
+      games: {
+        aoe: hasDiscordRoleMatch(roles, 'Age of Empires'),
+        animalCrossing: hasDiscordRole(roles, 'Animal Crossing'),
+        counterStrike: hasDiscordRole(roles, 'Counter Strike'),
+        fifa: hasDiscordRole(roles, 'FIFA'),
+        hearthstone: hasDiscordRole(roles, 'Hearthstone'),
+        lol: hasDiscordRole(roles, 'League of Legends'),
+        lor: hasDiscordRole(roles, 'Legends of Runeterra'),
+        monsterHunter: hasDiscordRole(roles, 'Monster Hunter'),
+        overwatch: hasDiscordRole(roles, 'Overwatch'),
+        pokemon: hasDiscordRole(roles, 'Pokemon'),
+        rainbow6: hasDiscordRole(roles, 'Rainbow 6'),
+        rocketLeague: hasDiscordRole(roles, 'Rocket League'),
+        smashBros: hasDiscordRoleMatch(roles, 'Smash Bros'),
+        starcraft: hasDiscordRoleMatch(roles, 'Starcraft'),
+        tft: hasDiscordRole(roles, 'TFT'),
+        valorant: hasDiscordRole(roles, 'Valorant'),
+      }
+    }
+  } catch (ex) {
+    console.error(`Error collecting member facts for ${member.contactDetails.firstName} ${member.contactDetails.familyName}.`, ex)
+    return {
+      error: ex.message
+    };
   }
 }
 

@@ -27,6 +27,17 @@ Kann da jemand unterstützen? Wir sollten diese Anzahl reduzieren.
 `);
     }
 
+    const activeTeams = await strapi.services.team.find({ _limit: -1, active: true, _sort: 'name:asc' }, [])
+    const inactiveTeams = await strapi.services.team.find({ _limit: -1, active: false, _sort: 'name:asc' }, [])
+
+    if (activeTeams.length > 0) {
+      postOrgaChannel(`Für die Überprüfung, ob passive Mitglieder ein Teil eines aktiven Teams sind, werden folgende **derzeit aktive Teams** berücksichtigt:
+> **${activeTeams.map(t => `[EGT] ${t.name}`).join(', ')}**  
+Die folgenden Teams sind als **inaktiv** markiert und werden nicht berücksichtigt:
+> **${inactiveTeams.map(t => `[EGT] ${t.name}`).join(', ')}**  
+Ich bitte um zeitnahe Info, falls sich hier etwas geändert hat!`);
+    }
+
     const withDiscordAccount = peopleToCheck.filter(m => m.contactDetails.companyName);
 
     const promises = withDiscordAccount.map(async m => {
@@ -46,7 +57,17 @@ Als Discord-Account ist \`${m.contactDetails.companyName}\` hinterlegt. Vielleic
         m,
         dcMember,
         m.contactDetails.age + 1,
+        undefined,
+        activeTeams,
       )
+
+      if (facts.error) {
+        postOrgaChannel(`
+💥 Fehler beim Sammeln der Mitgliederfakten von unserem ${isActive ? 'aktiven' : 'passiven'} Mitglied **${m.contactDetails.firstName} ${getMentionString(dcMember, m)} ${m.contactDetails.familyName}**.  
+\`${facts.error}\`  
+Für den Stacktrace bitte im Serverlog nachsehen.`);
+        return;
+      }
 
       if (!facts.discordRoles.memberRolesCorrect) {
         postOrgaChannel(`
