@@ -3,6 +3,8 @@
 const { setApiToken } = require('easyverein');
 const { ensureRole } = require("./utils/roles");
 const { client } = require('./utils/discord');
+const { prefix } = require('./bot/constants')
+const { processMessage } = require('./bot')
 
 module.exports = {
   /**
@@ -29,15 +31,21 @@ module.exports = {
 
     setApiToken(process.env.EASYVEREIN_TOKEN);
     client.login(process.env.BOT_TOKEN);
+    client.on('messageCreate', function (message) {
+      if (message.author.bot) return;
+      if (!message.content.startsWith(prefix)) return;
+      processMessage(message);
+    });
+    console.log(`Bot listening started…`);
 
     setTimeout(async () => {
       await strapi.services['api::core.core'].refreshCache();
   
-      if (process.env.NODE_ENV === 'development') {
-        await strapi.services['api::core.core'].healthCheck();
-        await strapi.services['api::core.core'].sendBirthdayNotifications();
-        await strapi.services['api::core.core'].remindBirthdayCard();
-      }
+      // if (process.env.NODE_ENV === 'development') {
+      //   await strapi.services['api::core.core'].healthCheck();
+      //   await strapi.services['api::core.core'].sendBirthdayNotifications();
+      //   await strapi.services['api::core.core'].remindBirthdayCard();
+      // }
     }, 8000)
   },
 };

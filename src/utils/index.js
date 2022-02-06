@@ -1,5 +1,7 @@
 const { intersection, find, uniq } = require('lodash')
-const { isSameDay, parseISO, setYear, addDays, differenceInMonths, differenceInYears, formatDistance } = require('date-fns');
+const { isSameDay, parseISO, setYear, addDays, differenceInMonths, differenceInYears, formatDistance, format, parseJSON } = require('date-fns');
+const { de } = require('date-fns/locale');
+const util = require('util');
 
 const attachPrimaryMail = (m) => ({
   ...m,
@@ -131,7 +133,7 @@ const collectMemberFacts = (member, discordMember, birthdayAge, referenceDate = 
       isPassive,
       memberSinceInMonths: differenceInMonths(referenceDate, joinDate),
       memberSinceInYears: differenceInYears(referenceDate, joinDate),
-      relativeMemberTime: formatDistance(joinDate, referenceDate),
+      relativeMemberTime: formatDistance(joinDate, referenceDate, { locale: de }),
       membershipNoEqualsAge: parseInt(member.membershipNumber) === birthdayAge,
       membershipNoEqualsBirthDate: referenceDate.getDate() === birthdayAge,
       membershipNoEqualsBirthMonth: referenceDate.getMonth() + 1 === birthdayAge,
@@ -180,6 +182,14 @@ const collectMemberFacts = (member, discordMember, birthdayAge, referenceDate = 
   }
 }
 
+const formatDate = (date, f) => format(parseJSON(date), f || 'P', { locale: de })
+const getDiscordTag = (user) => `${user.username}#${user.discriminator}`;
+const wait = util.promisify(setTimeout);
+const parseDiscordTag = (str) => {
+  const matches = /[A-Z0-9\. |_\\/]+#[0-9]{4}/i.exec(str);
+  return matches ? matches[0] : null;
+}
+
 module.exports = {
   attachPrimaryMail,
   hasBirthday,
@@ -190,4 +200,8 @@ module.exports = {
   hasDiscordUsername,
   getMentionString,
   collectMemberFacts,
+  formatDate,
+  getDiscordTag,
+  wait,
+  parseDiscordTag,
 };

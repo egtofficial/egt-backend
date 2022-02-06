@@ -15,6 +15,7 @@
     "@strapi/plugin-users-permissions": "4.0.7",
     "@strapi/provider-email-nodemailer": "^4.0.7",
     "@strapi/strapi": "4.0.7",
+    "colors": "^1.4.0",
     "discord.js": "^13.6.0",
     "easyverein": "^0.3.0",
     "lodash": "^4.17.21",

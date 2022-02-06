@@ -1,8 +1,9 @@
 const { Client, Intents } = require('discord.js');
 
 let dClient = new Client({
-  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.DIRECT_MESSAGES ]
+  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGES]
 });
+
 let orgaChannel;
 let guild;
 
@@ -20,9 +21,11 @@ const fetchGuild = async () => {
 const fetchMember = async (discordTag) => {
   // we cannot search by discord username, so let's try to resolve without discriminator
   const parts = discordTag.split('#');
-  const members = await guild.members.fetch({ query: parts[0], limit: 1 })
+  const members = await guild.members.search({ query: parts[0], limit: 1 })
   return members.first()
 }
+
+const fetchMemberById = (id) => guild.members.fetch(id);
 
 const postOrgaChannel = (content) => {
   if (process.env.SIMULATE_POSTS === 'true') {
@@ -38,7 +41,7 @@ const postOrgaChannel = (content) => {
 
     if (!found)
       throw new Error(`Orga channel »${process.env.ORGA_CHANNEL}« not found.`)
-    
+
     orgaChannel = found;
   }
 
@@ -51,4 +54,5 @@ module.exports = {
   postOrgaChannel,
   fetchGuild,
   fetchMember,
+  fetchMemberById,
 };

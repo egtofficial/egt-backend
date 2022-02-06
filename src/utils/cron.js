@@ -29,8 +29,6 @@ Kann da jemand unterstützen? Wir sollten diese Anzahl reduzieren.
     const activeTeams = await strapi.services['api::team.team'].find({ pagination: { page: 1, pageSize: 200 }, filters: { active: { $eq: true } }, sort: ['name:asc'] }, [])
     const inactiveTeams = await strapi.services['api::team.team'].find({ pagination: { page: 1, pageSize: 200 }, filters: { active: { $eq: false } }, sort: ['name:asc'] }, [])
 
-    console.log('Active TEams', activeTeams)
-
     if (activeTeams.pagination.total > 0) {
       postOrgaChannel(`Für die Überprüfung, ob passive Mitglieder ein Teil eines aktiven Teams sind, werden folgende **derzeit aktive Teams** berücksichtigt:
 > **${activeTeams.results.map(t => `[EGT] ${t.name}`).join(', ')}**  
