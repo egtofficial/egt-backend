@@ -2,12 +2,13 @@ const { sample, words } = require('lodash')
 const { genericFallbackReplies, genericHelloReplies, genericHelloWords, prefix } = require('./constants')
 const info = require('./intents/info');
 const facts = require('./intents/facts');
+const { listEvents, createEvent, deleteEvent } = require('./intents/event');
 const { blue } = require('colors/safe');
 const { wait } = require('../utils');
 
-
 const processMessage = async (message) => {
   const messageString = message.content.substr(prefix.length);
+  const mWords = words(messageString);
   const cmd = words(messageString)[0].toLowerCase();
   const args = messageString.replace(cmd, '').trim() || '';
   console.log(blue(`Incoming command: ${cmd}`), args ? `=> ${args}` : '');
@@ -22,6 +23,18 @@ const processMessage = async (message) => {
 
   if (['facts'].includes(cmd))
     return facts(message, args);
+
+  if (['event', 'list'].every(w => mWords.includes(w)) || ['events', 'list'].every(w => mWords.includes(w))) {
+    return listEvents(message, args);
+  }
+
+  if (['event', 'create'].every(w => mWords.includes(w)) || ['events', 'create'].every(w => mWords.includes(w))) {
+    return createEvent(message, args);
+  }
+
+  if (['event', 'delete'].every(w => mWords.includes(w)) || ['events', 'delete'].every(w => mWords.includes(w))) {
+    return deleteEvent(message, args);
+  }
 
   // if (['post']) {
   //   const match = args.match(/^(\S+)\s(.*)/);
@@ -39,6 +52,10 @@ const processMessage = async (message) => {
     !egt info  
     !egt info Discordtag#1234    Zeigt die Mitgliederinformationen der Person an  
                                  Zugriff auf die Mitgliederkartei notwendig.
+    !egt facts                   Zeigt alle "Vereinsfakten", die wir über dich und deine Mitgliedschaft berechnen.
+    !egt facts Discordtag#1234   Zeigt alle "Vereinsfakten", die wir über die Person und ihre Mitgliedschaft berechnen.
+                                 Zugriff auf die Mitgliederkartei notwendig.
+    !egt list events             Zeigt alle anstehenden Aktionen an.
     \`\`\``)
   })
 }

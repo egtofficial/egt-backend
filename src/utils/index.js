@@ -1,7 +1,9 @@
 const { intersection, find, uniq } = require('lodash')
 const { isSameDay, parseISO, setYear, addDays, differenceInMonths, differenceInYears, formatDistance, format, parseJSON } = require('date-fns');
+const { getMemberships, resolve } = require('../easyverein/index');
 const { de } = require('date-fns/locale');
 const util = require('util');
+const { fetchMemberById } = require('./discord');
 
 const attachPrimaryMail = (m) => ({
   ...m,
@@ -183,11 +185,30 @@ const collectMemberFacts = (member, discordMember, birthdayAge, referenceDate = 
 }
 
 const formatDate = (date, f) => format(parseJSON(date), f || 'P', { locale: de })
+const formatDateTime = (date, f) => format(parseJSON(date), f || 'P p', { locale: de })
 const getDiscordTag = (user) => `${user.username}#${user.discriminator}`;
 const wait = util.promisify(setTimeout);
 const parseDiscordTag = (str) => {
   const matches = /[A-Z0-9\. |_\\/]+#[0-9]{4}/i.exec(str);
   return matches ? matches[0] : null;
+}
+
+const resolveAuthorAndFacts = async (message) => {
+  const member = await resolve(getDiscordTag(message.author), true);
+  const activeTeams = await strapi.services['api::team.team'].find({ pagination: { page: 1, pageSize: 200 }, filters: { active: { $eq: true } }, sort: ['name:asc'] }, [])
+  const dcMember = await fetchMemberById(message.author.id);
+  const facts = collectMemberFacts(
+    member,
+    dcMember,
+    member.contactDetails.age + 1,
+    undefined,
+    activeTeams.results,
+  )
+  return {
+    member,
+    dcMember,
+    facts,
+  }
 }
 
 module.exports = {
@@ -201,7 +222,9 @@ module.exports = {
   getMentionString,
   collectMemberFacts,
   formatDate,
+  formatDateTime,
   getDiscordTag,
   wait,
   parseDiscordTag,
+  resolveAuthorAndFacts
 };
