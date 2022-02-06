@@ -1,6 +1,8 @@
-const { Client } = require('discord.js');
+const { Client, Intents } = require('discord.js');
 
-let dClient = new Client();
+let dClient = new Client({
+  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.DIRECT_MESSAGES ]
+});
 let orgaChannel;
 let guild;
 
@@ -32,7 +34,7 @@ const postOrgaChannel = (content) => {
       throw new Error('env variable ORGA_CHANNEL not set.')
 
     const channels = dClient.channels.cache;
-    const found = channels.find((c) => c.type === 'text' && c.name === process.env.ORGA_CHANNEL)
+    const found = channels.find((c) => c.type === 'GUILD_TEXT' && c.name === process.env.ORGA_CHANNEL)
 
     if (!found)
       throw new Error(`Orga channel »${process.env.ORGA_CHANNEL}« not found.`)

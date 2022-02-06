@@ -1,6 +1,4 @@
-'use strict';
-const { sendBirthdayNotifications, remindBirthdayCard } = require('../../utils/birthday');
-const { refreshCache, healthCheck } = require('../../utils/cron');
+// const { refreshCache } = require('../src/utils/cron');
 
 /**
  * Cron config that gives you an opportunity
@@ -16,25 +14,25 @@ module.exports = {
   /**
    * Send birthday notifications every day at 10:30
    */
-  '30 10 * * *': () => {
-    sendBirthdayNotifications();
+  '30 10 * * *': ({ strapi }) => {
+    strapi.services['api::core.core'].sendBirthdayNotifications();
   },
   /**
  * Remind for preparing birthday cards every day at 14:00
  */
-  '0 14 * * *': () => {
-    remindBirthdayCard();
+  '0 14 * * *': ({ strapi }) => {
+    strapi.services['api::core.core'].remindBirthdayCard();
   },
   /**
    * Perform member and discord health check every thursday at 11:15
   */
-  '15 11 * * 4': () => {
-    healthCheck();
+  '15 11 * * 4': ({ strapi }) => {
+    strapi.services['api::core.core'].healthCheck();
   },
   /**
    * Refresh cashes every 30 minutes
    */
-  '*/30 * * * *': () => {
-    refreshCache();
+  '*/30 * * * *': ({ strapi }) => {
+    strapi.services['api::core.core'].refreshCache()
   },
 };

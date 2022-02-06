@@ -26,14 +26,16 @@ Kann da jemand unterstützen? Wir sollten diese Anzahl reduzieren.
 `);
     }
 
-    const activeTeams = await strapi.services.team.find({ _limit: -1, active: true, _sort: 'name:asc' }, [])
-    const inactiveTeams = await strapi.services.team.find({ _limit: -1, active: false, _sort: 'name:asc' }, [])
+    const activeTeams = await strapi.services['api::team.team'].find({ pagination: { page: 1, pageSize: 200 }, filters: { active: { $eq: true } }, sort: ['name:asc'] }, [])
+    const inactiveTeams = await strapi.services['api::team.team'].find({ pagination: { page: 1, pageSize: 200 }, filters: { active: { $eq: false } }, sort: ['name:asc'] }, [])
 
-    if (activeTeams.length > 0) {
+    console.log('Active TEams', activeTeams)
+
+    if (activeTeams.pagination.total > 0) {
       postOrgaChannel(`Für die Überprüfung, ob passive Mitglieder ein Teil eines aktiven Teams sind, werden folgende **derzeit aktive Teams** berücksichtigt:
-> **${activeTeams.map(t => `[EGT] ${t.name}`).join(', ')}**  
+> **${activeTeams.results.map(t => `[EGT] ${t.name}`).join(', ')}**  
 Die folgenden Teams sind als **inaktiv** markiert und werden nicht berücksichtigt:
-> **${inactiveTeams.map(t => `[EGT] ${t.name}`).join(', ')}**  
+> **${inactiveTeams.results.map(t => `[EGT] ${t.name}`).join(', ')}**  
 Ich bitte um zeitnahe Info, falls sich hier etwas geändert hat!`);
     }
 
@@ -57,7 +59,7 @@ Als Discord-Account ist \`${m.contactDetails.companyName}\` hinterlegt. Vielleic
         dcMember,
         m.contactDetails.age + 1,
         undefined,
-        activeTeams,
+        activeTeams.results,
       )
 
       if (facts.error) {

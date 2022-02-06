@@ -2,11 +2,11 @@
   "kind": "collectionType",
   "collectionName": "teams",
   "info": {
-    "name": "Team"
+    "singularName": "team",
+    "pluralName": "teams",
+    "displayName": "Team"
   },
   "options": {
-    "increments": true,
-    "timestamps": true,
     "draftAndPublish": false
   },
   "pluginOptions": {},
