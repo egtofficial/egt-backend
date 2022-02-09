@@ -90,6 +90,7 @@ ${facts.discordRoles.memberRoleMissing
           ...(facts.isPR ? ['PR-Team'] : []),
           ...(facts.isTeamManager ? ['Teamleitung'] : []),
           ...(facts.isTeamPlayer ? ['Teamspieler'] : []),
+          ...(facts.isCaster ? ['Caster'] : []),
         ];
         postOrgaChannel(`
 🚨 Das passive Mitglied **${m.contactDetails.firstName} ${getMentionString(dcMember, m)} ${m.contactDetails.familyName}** hat Rollen und Verantwortlichkeiten, die eine **aktive Mitgliedschaft erforderlich** machen:  

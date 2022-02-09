@@ -127,6 +127,7 @@ const collectMemberFacts = (member, discordMember, birthdayAge, referenceDate = 
       isPR: hasDiscordRole(roles, 'PR Team'),
       isTeamManager: hasDiscordRoleMatch(roles, 'Teamleitung'),
       isTeamPlayer: playerInActiveTeams.length > 0,
+      isCaster: hasDiscordRole(roles, 'Caster')
     }
   
     return {
@@ -153,7 +154,7 @@ const collectMemberFacts = (member, discordMember, birthdayAge, referenceDate = 
         },
       },
       ...jobs,
-      hasIllegalJobs: (!isActive && (jobs.isOrga || jobs.isDepartmentManager || jobs.isPR || jobs.isTeamManager || jobs.isTeamPlayer)),
+      hasIllegalJobs: (!isActive && (jobs.isOrga || jobs.isDepartmentManager || jobs.isPR || jobs.isTeamManager || jobs.isTeamPlayer || jobs.isCaster)),
       teams: getTeams(roles),
       activeTeamsPlaying: playerInActiveTeams,
       // TODO: Let's make this configurable in the Strapi UI
