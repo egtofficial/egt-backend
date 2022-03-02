@@ -35,4 +35,10 @@ module.exports = {
   '*/30 * * * *': ({ strapi }) => {
     strapi.services['api::core.core'].refreshCache()
   },
+  /**
+   * Post upcoming events every Sunday at 12:30
+   */
+  '30 12 * * 7': ({ strapi }) => {
+    strapi.services['api::core.core'].postUpcomingEvents()
+  },
 };

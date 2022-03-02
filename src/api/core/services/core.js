@@ -1,4 +1,5 @@
 'use strict';
+const { postUpcomingEvents } = require('../../../bot/intents/event');
 const birthday = require('../../../utils/birthday');
 const cron = require('../../../utils/cron');
 
@@ -18,5 +19,8 @@ module.exports = () => ({
   },
   remindBirthdayCard() {
     return birthday.remindBirthdayCard();
+  },
+  postUpcomingEvents() {
+    return postUpcomingEvents();
   }
 });

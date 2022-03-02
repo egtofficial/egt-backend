@@ -1,7 +1,7 @@
 const { formatDateTime, resolveAuthorAndFacts } = require('../../utils');
-const { startOfDay, parse } = require('date-fns');
+const { startOfDay, parse, addDays, endOfWeek } = require('date-fns');
 const { isNaN } = require('lodash');
-const { sendMessage } = require('../../utils/discord');
+const { sendMessage, postChannel } = require('../../utils/discord');
 
 const stringifyEvent = (event, withId) => `**${withId ? `#${event.id} ` : ''}${event.title}**: ${formatDateTime(event.begin)} _(${event.location})_`;
 
@@ -94,8 +94,30 @@ const deleteEvent = async (message, args) => {
   return;
 }
 
+const postUpcomingEvents = async () => {
+  const events = await strapi.services['api::event.event'].find({
+    pagination: { page: 1, pageSize: 200 },
+    sort: ['begin:asc'],
+    filters: {
+      begin: {
+        $gte: startOfDay(new Date()).toISOString(),
+        $lte: endOfWeek(addDays(new Date, 1)).toISOString(),
+      }
+    },
+  },
+    [])
+
+  if (events.pagination.total === 0) {
+    return;
+  }
+
+  postChannel('allgemeines', `Folgende Events stehen demnächst bei uns an:  
+  ${events.results.map(e => `> 🔹 ${stringifyEvent(e, false)}`).join("\n")}`, 'event-list-upcoming')
+}
+
 module.exports = {
   listEvents,
   createEvent,
   deleteEvent,
+  postUpcomingEvents,
 };

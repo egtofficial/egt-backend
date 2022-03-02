@@ -52,6 +52,15 @@ const postOrgaChannel = (content, reason) => {
   sendMessage(orgaChannel, null, reason, content)
 }
 
+const postChannel = (channelName, content, reason) => {
+  const channels = dClient.channels.cache;
+  const channel = channels.find((c) => c.type === 'GUILD_TEXT' && c.name === channelName)
+  if (!channel)
+    throw new Error(`Channel »${channelName}« not found.`)
+
+  sendMessage(channel, null, reason, content)
+}
+
 const sendPrivateMessageByUsername = async (discordUsername, reason, content) => {
   const dcMember = await fetchMember(discordUsername)
   if (!dcMember) {
@@ -83,4 +92,5 @@ module.exports = {
   sendMessage,
   sendPrivateMessage,
   sendPrivateMessageByUsername,
+  postChannel,
 };

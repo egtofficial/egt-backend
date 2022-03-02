@@ -186,7 +186,7 @@ const collectMemberFacts = (member, discordMember, birthdayAge, referenceDate = 
 }
 
 const formatDate = (date, f) => format(parseJSON(date), f || 'P', { locale: de })
-const formatDateTime = (date, f) => format(parseJSON(date), f || 'P p', { locale: de })
+const formatDateTime = (date, f) => format(parseJSON(date), f || `EEEEEE, P 'um' p 'Uhr'`, { locale: de })
 const getDiscordTag = (user) => `${user.username}#${user.discriminator}`;
 const wait = util.promisify(setTimeout);
 const parseDiscordTag = (str) => {
@@ -243,7 +243,7 @@ const logOutgoingMessage = async (message, recipient, reason) => {
   return strapi.service('api::message.message').create({
     data: {
       messageId: message.id,
-      discordUserId: recipient.id,
+      discordUserId: recipient ? recipient.id : null,
       discordUserName,
       type: 'outgoing',
       reason,
