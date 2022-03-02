@@ -40,6 +40,7 @@ module.exports = {
 
     setTimeout(async () => {
       await strapi.services['api::core.core'].refreshCache();
+      // sendPrivateMessage('Cattus#6287', 'debug', 'Bot wurde gestartet.')
   
       // if (process.env.NODE_ENV === 'development') {
       //   await strapi.services['api::core.core'].healthCheck();

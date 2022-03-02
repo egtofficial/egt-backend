@@ -2,7 +2,10 @@ const { Client, Intents } = require('discord.js');
 const { logOutgoingMessage } = require('.');
 
 let dClient = new Client({
-  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGES]
+  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGES],
+  partials: [
+    'CHANNEL', // Required to receive DMs
+  ]
 });
 
 let orgaChannel;
@@ -49,6 +52,16 @@ const postOrgaChannel = (content, reason) => {
   sendMessage(orgaChannel, null, reason, content)
 }
 
+const sendPrivateMessage = async (discordUsername, reason, content) => {
+  const dcMember = await fetchMember(discordUsername)
+  if (!dcMember) {
+    console.error(`Could not send private message to ${discordUsername}, user not found.`)
+  }
+
+  const message = await dcMember.send(content)
+  logOutgoingMessage(message, dcMember.user, reason)
+}
+
 const sendMessage = async (channel, recipient, reason, content) => {
   const message = await channel.send(content)
   logOutgoingMessage(message, recipient, reason)
@@ -62,5 +75,6 @@ module.exports = {
   fetchGuild,
   fetchMember,
   fetchMemberById,
-  sendMessage
+  sendMessage,
+  sendPrivateMessage
 };
