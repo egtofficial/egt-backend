@@ -52,12 +52,17 @@ const postOrgaChannel = (content, reason) => {
   sendMessage(orgaChannel, null, reason, content)
 }
 
-const sendPrivateMessage = async (discordUsername, reason, content) => {
+const sendPrivateMessageByUsername = async (discordUsername, reason, content) => {
   const dcMember = await fetchMember(discordUsername)
   if (!dcMember) {
     console.error(`Could not send private message to ${discordUsername}, user not found.`)
   }
 
+  const message = await dcMember.send(content)
+  logOutgoingMessage(message, dcMember.user, reason)
+}
+
+const sendPrivateMessage = async (dcMember, reason, content) => {
   const message = await dcMember.send(content)
   logOutgoingMessage(message, dcMember.user, reason)
 }
@@ -76,5 +81,6 @@ module.exports = {
   fetchMember,
   fetchMemberById,
   sendMessage,
-  sendPrivateMessage
+  sendPrivateMessage,
+  sendPrivateMessageByUsername,
 };

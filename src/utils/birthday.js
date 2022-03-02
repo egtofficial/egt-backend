@@ -1,9 +1,9 @@
 const { attachPrimaryMail, hasBirthday, isMember, isActiveMember, hasSoonBirthday, getMentionString } = require('./index')
 const { parseISO, format } = require('date-fns');
 const { getMembers } = require('easyverein');
-const { happyBirthdayActive, happyBirthdayPassive } = require('./mailtemplates');
+const { happyBirthdayActive, happyBirthdayPassive, replacePlaceholders } = require('./mailtemplates');
 const { de } = require('date-fns/locale');
-const { postOrgaChannel, fetchMember } = require('./discord');
+const { postOrgaChannel, fetchMember, sendPrivateMessage } = require('./discord');
 
 const sendBirthdayNotifications = async () => {
   console.log('[CRON] sendBirthdayNotifications');
@@ -27,23 +27,30 @@ const sendBirthdayNotifications = async () => {
 
       const isActive = isActiveMember(m)
       console.log(`Sending happy birthday to ${isActive ? 'active' : 'passive'} member ${m.primaryEmail}…`)
+
+      const template = isActive ? happyBirthdayActive : happyBirthdayPassive
+      const values = {
+        name: m.contactDetails.firstName,
+        membershipNumber: m.membershipNumber,
+        joinDate: format(parseISO(m.joinDate), 'P', { locale: de }),
+        age: m.contactDetails.age,
+      }
+
+      if (dcMember)
+        sendPrivateMessage(dcMember, 'birthday-notification', replacePlaceholders(template.markdown, values))
+
       await strapi.plugins['email'].services.email.sendTemplatedEmail(
         {
           to: process.env.NODE_ENV === 'production' ? m.primaryEmail : 'fred@f-bit.software',
         },
-        isActive ? happyBirthdayActive : happyBirthdayPassive,
-        {
-          name: m.contactDetails.firstName,
-          membershipNumber: m.membershipNumber,
-          joinDate: format(parseISO(m.joinDate), 'P', { locale: de }),
-          age: m.contactDetails.age,
-        },
+        template,
+        values,
       );
 
       console.log(`Notifying orga channel…`)
       postOrgaChannel(`
 Das ${isActive ? 'aktive' : 'passive'} Mitglied **${m.contactDetails.firstName} ${getMentionString(dcMember, m)} ${m.contactDetails.familyName}** hat heute Geburtstag und wurde ${m.contactDetails.age} Jahre alt. 🥳   
-Ich habe Geburtstagsglückwünsche per E-Mail geschickt. 💌
+Ich habe Geburtstagsglückwünsche per Discord-Privatnachricht und E-Mail geschickt. 💌
       `, 'birthday-notification');
     });
 

@@ -14,6 +14,21 @@ const happyBirthdayActive = {
 
   Der Gesamtvorstand
   Elysium Gaming Tübingen e.V.`,
+  markdown: `Hallo <%= name %> 👋,
+
+  im Namen des gesamten Vorstands gratulieren wir sehr herzlich zu deinem **<%= age %>. Geburtstag** und wünschen viel Freude, Erfolg und Gesundheit für das neue Lebensjahr. 🥳
+  🎁 🍀 🎉  
+
+  Es ist toll, dass du dich für Gaming einsetzt und als aktives Mitglied einen wichtigen Beitrag zu unserer Gemeinschaft leistest.
+  Wir danken dir, dass du den Verein und die Ziele von **Elysium Gaming Tübingen e.V.** unterstützt.
+
+  **Mitgliedsnummer:** <%= membershipNumber %>
+  **Beitrittsdatum:** <%= joinDate %>
+
+  Viele Grüße,
+
+  **Der Gesamtvorstand**
+  Elysium Gaming Tübingen e.V.`,
   html: `Hallo <%= name %>,<br />
 
   <p>im Namen des gesamten Vorstands gratulieren wir sehr herzlich zu deinem <strong><%= age %>. Geburtstag</strong> und wünschen viel Freude, Erfolg und Gesundheit für das neue Lebensjahr.</p>
@@ -47,6 +62,21 @@ const happyBirthdayPassive = {
 
   Der Gesamtvorstand
   Elysium Gaming Tübingen e.V.`,
+  markdown: `Hallo <%= name %> 👋,
+
+  im Namen des gesamten Vorstands gratulieren wir sehr herzlich zu deinem **<%= age %>. Geburtstag** und wünschen viel Freude, Erfolg und Gesundheit für das neue Lebensjahr. 🥳
+  🎁 🍀 🎉  
+
+  Als passives Mitglied teilst du unsere Ziele und trägst **Elysium Gaming Tübingen e.V.** in deinem Herzen.
+  Dafür sind wir dankbar.
+
+  **Mitgliedsnummer:** <%= membershipNumber %>
+  **Beitrittsdatum:** <%= joinDate %>
+
+  Viele Grüße,
+
+  **Der Gesamtvorstand**
+  Elysium Gaming Tübingen e.V.`,
   html: `Hallo <%= name %>,<br />
 
   <p>im Namen des gesamten Vorstands gratulieren wir sehr herzlich zu deinem <strong><%= age %>. Geburtstag</strong> und wünschen viel Freude, Erfolg und Gesundheit für das neue Lebensjahr.</p>
@@ -64,8 +94,18 @@ const happyBirthdayPassive = {
   `,
 };
 
+const replacePlaceholders = (template, values) => {
+  let message = template;
+  if (values.name) message = message.replace(/<%= name %>/g, values.name);
+  if (values.membershipNumber) message = message.replace(/<%= membershipNumber %>/g, values.membershipNumber);
+  if (values.joinDate) message = message.replace(/<%= joinDate %>/g, values.joinDate);
+  if (values.age) message = message.replace(/<%= age %>/g, values.age);
+  return message;
+}
+
 
 module.exports = {
   happyBirthdayActive,
   happyBirthdayPassive,
+  replacePlaceholders,
 };
