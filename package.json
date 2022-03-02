@@ -1,7 +1,7 @@
 {
   "name": "egt-backend",
   "private": true,
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Process automation for Elysium Gaming Tübingen e.V.",
   "scripts": {
     "develop": "strapi develop",

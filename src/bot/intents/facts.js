@@ -14,7 +14,7 @@ const facts = async (message, name) => {
   if (name && !memberDiscordTag) {
     return wait(1000)
       .then(() => {
-        message.channel.send(`Der zweite Parameter sollte ein gültiger Discord-Tag sein. Also beispielsweise \`!egt info ${authorDiscordTag}\`.`);
+        sendMessage(message.channel, message.author, 'facts-show', `Der zweite Parameter sollte ein gültiger Discord-Tag sein. Also beispielsweise \`!egt info ${authorDiscordTag}\`.`);
         return wait(2000);
       })
   }
@@ -23,21 +23,21 @@ const facts = async (message, name) => {
     console.warn(red(`Could not resolve ${authorDiscordTag}.`));
     return wait(1000)
       .then(() => {
-        message.channel.send(`Hmmm…`);
+        sendMessage(message.channel, message.author, 'facts-show', `Hmmm…`);
         return wait(2000);
       })
       .then(() => {
-        message.channel.send(`Tut mir leid, ich kann dich in unseren Vereinsunterlagen nicht finden. 🤷‍♂️`);
+        sendMessage(message.channel, message.author, 'facts-show', `Tut mir leid, ich kann dich in unseren Vereinsunterlagen nicht finden. 🤷‍♂️`);
         if (name)
-          message.channel.send(`Nur Personen mit Zugriff auf die Mitgliederkartei können mich nach anderen Leuten fragen. Und ich habe ehrlich gesagt keine Ahnung, wer du bist. 😅`);
+          sendMessage(message.channel, message.author, 'facts-show', `Nur Personen mit Zugriff auf die Mitgliederkartei können mich nach anderen Leuten fragen. Und ich habe ehrlich gesagt keine Ahnung, wer du bist. 😅`);
         return wait(3000);
       })
       .then(() => {
-        message.channel.send(`Entweder bist du noch gar kein Mitglied (das sollten wir dann unbedingt ändern!) oder wir haben auf deiner Akte das Post-it mit deinem Discordtag \`${authorDiscordTag}\` vergessen. 🤔`);
+        sendMessage(message.channel, message.author, 'facts-show', `Entweder bist du noch gar kein Mitglied (das sollten wir dann unbedingt ändern!) oder wir haben auf deiner Akte das Post-it mit deinem Discordtag \`${authorDiscordTag}\` vergessen. 🤔`);
         return wait(5000);
       })
       .then(() => {
-        message.channel.send(`Aber wenn du sicher bist, dass du Mitglied bei Elysium Gaming Tübingen e.V. bist, dann schreib doch einfach mal dem *Cattus | Fred*, der meldet sich dann bei mir und wir klären das alles ganz easy.`);
+        sendMessage(message.channel, message.author, 'facts-show', `Aber wenn du sicher bist, dass du Mitglied bei Elysium Gaming Tübingen e.V. bist, dann schreib doch einfach mal dem *Cattus | Fred*, der meldet sich dann bei mir und wir klären das alles ganz easy.`);
       });
   }
 
@@ -49,11 +49,11 @@ const facts = async (message, name) => {
       console.warn(yellow(`Denied ${authorDiscordTag} to query for ${name}.`));
       return wait(1000)
         .then(() => {
-          message.channel.send(`Hmmm…`);
+          sendMessage(message.channel, message.author, 'facts-show', `Hmmm…`);
           return wait(2000);
         })
         .then(() => {
-          message.channel.send(`Tut mir leid, aber nur Personen mit Zugriff auf die Mitgliederkartei können mich nach der Identität von Leuten fragen. 😛`);
+          sendMessage(message.channel, message.author, 'facts-show', `Tut mir leid, aber nur Personen mit Zugriff auf die Mitgliederkartei können mich nach der Identität von Leuten fragen. 😛`);
           return wait(3000);
         })
     }
@@ -62,15 +62,15 @@ const facts = async (message, name) => {
       console.warn(red(`Could not resolve ${memberDiscordTag}.`));
       return wait(1000)
         .then(() => {
-          message.channel.send(`Hmmm…`);
+          sendMessage(message.channel, message.author, 'facts-show', `Hmmm…`);
           return wait(2000);
         })
         .then(() => {
-          message.channel.send(`Tut mir leid, ich kann **${memberDiscordTag}** in unseren Vereinsunterlagen nicht finden. 🤷‍♂️`);
+          sendMessage(message.channel, message.author, 'facts-show', `Tut mir leid, ich kann **${memberDiscordTag}** in unseren Vereinsunterlagen nicht finden. 🤷‍♂️`);
           return wait(3000);
         })
         .then(() => {
-          message.channel.send(`Entweder er/sie ist noch gar kein Mitglied oder wir haben auf der Akte das Post-it mit dem Discordtag vergessen. 🤔`);
+          sendMessage(message.channel, message.author, 'facts-show', `Entweder er/sie ist noch gar kein Mitglied oder wir haben auf der Akte das Post-it mit dem Discordtag vergessen. 🤔`);
         });
     } else {
       console.log(green(`Successfully resolved ${member.contactDetails.companyName}.`));
@@ -87,11 +87,11 @@ const facts = async (message, name) => {
         )
       }
 
-      message.channel.send(`Es folgen alle unsere bekannten Fakten über ${getMentionString(dcMember, member)}:`);
+      sendMessage(message.channel, message.author, 'facts-show', `Es folgen alle unsere bekannten Fakten über ${getMentionString(dcMember, member)}:`);
 
       return wait(2000)
         .then(() => {
-          if (facts) message.channel.send(`\`\`\`  
+          if (facts) sendMessage(message.channel, message.author, 'facts-show', `\`\`\`  
 ${JSON.stringify(facts, null, 2)}
 \`\`\``);
         })
@@ -112,11 +112,11 @@ ${JSON.stringify(facts, null, 2)}
     )
   }
 
-  message.channel.send(`Es folgen alle unsere bekannten Fakten über ${getMentionString(dcMember, member)}:`);
+  sendMessage(message.channel, message.author, 'facts-show', `Es folgen alle unsere bekannten Fakten über ${getMentionString(dcMember, member)}:`);
 
   return wait(2000)
     .then(() => {
-      if (facts) message.channel.send(`\`\`\`  
+      if (facts) sendMessage(message.channel, message.author, 'facts-show', `\`\`\`  
 ${JSON.stringify(facts, null, 2)}
 \`\`\``);
     })

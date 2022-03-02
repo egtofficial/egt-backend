@@ -1,0 +1,52 @@
+{
+  "kind": "collectionType",
+  "collectionName": "messages",
+  "info": {
+    "singularName": "message",
+    "pluralName": "messages",
+    "displayName": "Message",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "messageId": {
+      "type": "string"
+    },
+    "discordUserId": {
+      "type": "string"
+    },
+    "discordUserName": {
+      "type": "string"
+    },
+    "memberFullName": {
+      "type": "string"
+    },
+    "memberId": {
+      "type": "integer"
+    },
+    "memberNumber": {
+      "type": "string"
+    },
+    "memberMail": {
+      "type": "string"
+    },
+    "channelName": {
+      "type": "string"
+    },
+    "channelId": {
+      "type": "string"
+    },
+    "content": {
+      "type": "richtext"
+    },
+    "type": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    }
+  }
+}

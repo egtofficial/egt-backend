@@ -44,7 +44,7 @@ const sendBirthdayNotifications = async () => {
       postOrgaChannel(`
 Das ${isActive ? 'aktive' : 'passive'} Mitglied **${m.contactDetails.firstName} ${getMentionString(dcMember, m)} ${m.contactDetails.familyName}** hat heute Geburtstag und wurde ${m.contactDetails.age} Jahre alt. 🥳   
 Ich habe Geburtstagsglückwünsche per E-Mail geschickt. 💌
-      `);
+      `, 'birthday-notification');
     });
 
     return Promise.all(promises);
@@ -78,7 +78,7 @@ const remindBirthdayCard = async () => {
       postOrgaChannel(`
 Das aktive Mitglied **${m.contactDetails.firstName} ${getMentionString(dcMember, m)} ${m.contactDetails.familyName}** hat **in 3 Tagen Geburtstag** (${format(parseISO(m.contactDetails.dateOfBirth), 'dd. MMMM', { locale: de })}) und wird ${m.contactDetails.age + 1} Jahre alt. 🥳   
 Es wäre cool, wenn jemand eine Postkarte vorbereiten und rechtzeitig wegschicken könnte.
-      `)
+      `, 'birthday-reminder')
     });
 
     return Promise.all(promises);

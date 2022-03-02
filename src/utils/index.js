@@ -3,7 +3,7 @@ const { isSameDay, parseISO, setYear, addDays, differenceInMonths, differenceInY
 const { getMemberships, resolve } = require('../easyverein/index');
 const { de } = require('date-fns/locale');
 const util = require('util');
-const { fetchMemberById } = require('./discord');
+const { fetchMemberById, client } = require('./discord');
 
 const attachPrimaryMail = (m) => ({
   ...m,
@@ -212,6 +212,54 @@ const resolveAuthorAndFacts = async (message) => {
   }
 }
 
+const logIncomingMessage = async (message, reason) => {
+  const discordUserName = getDiscordTag(message.author)
+  const member = await resolve(discordUserName, true);
+
+  return strapi.service('api::message.message').create({
+    data: {
+      messageId: message.id,
+      discordUserId: message.author.id,
+      discordUserName,
+      type: 'incoming',
+      reason,
+      content: message.content,
+      channelId: message.channel.id,
+      channelName: message.channel.name,
+      ...(member ? {
+        memberId: member.id,
+        memberNumber: member.membershipNumber,
+        memberFullName: `${member.contactDetails.firstName} ${member.contactDetails.familyName}`,
+        memberMail: member.email,
+      } : undefined)
+    }
+  });
+}
+
+const logOutgoingMessage = async (message, recipient, reason) => {
+  const discordUserName = recipient ? getDiscordTag(recipient) : null
+  const member = recipient ? await resolve(discordUserName, true) : null;
+
+  return strapi.service('api::message.message').create({
+    data: {
+      messageId: message.id,
+      discordUserId: recipient.id,
+      discordUserName,
+      type: 'outgoing',
+      reason,
+      content: message.content,
+      channelId: message.channel.id,
+      channelName: message.channel.name,
+      ...(member ? {
+        memberId: member.id,
+        memberNumber: member.membershipNumber,
+        memberFullName: `${member.contactDetails.firstName} ${member.contactDetails.familyName}`,
+        memberMail: member.email,
+      } : undefined)
+    }
+  });
+}
+
 module.exports = {
   attachPrimaryMail,
   hasBirthday,
@@ -227,5 +275,7 @@ module.exports = {
   getDiscordTag,
   wait,
   parseDiscordTag,
-  resolveAuthorAndFacts
+  resolveAuthorAndFacts,
+  logIncomingMessage,
+  logOutgoingMessage
 };

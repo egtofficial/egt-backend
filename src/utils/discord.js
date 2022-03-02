@@ -1,4 +1,5 @@
 const { Client, Intents } = require('discord.js');
+const { logOutgoingMessage } = require('.');
 
 let dClient = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGES]
@@ -27,7 +28,7 @@ const fetchMember = async (discordTag) => {
 
 const fetchMemberById = (id) => guild.members.fetch(id);
 
-const postOrgaChannel = (content) => {
+const postOrgaChannel = (content, reason) => {
   if (process.env.SIMULATE_POSTS === 'true') {
     console.log(content)
     return
@@ -45,7 +46,13 @@ const postOrgaChannel = (content) => {
     orgaChannel = found;
   }
 
-  orgaChannel.send(content);
+  sendMessage(orgaChannel, null, reason, content)
+}
+
+const sendMessage = async (channel, recipient, reason, content) => {
+  const message = await channel.send(content)
+  logOutgoingMessage(message, recipient, reason)
+  return message
 }
 
 module.exports = {
@@ -55,4 +62,5 @@ module.exports = {
   fetchGuild,
   fetchMember,
   fetchMemberById,
+  sendMessage
 };

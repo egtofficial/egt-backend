@@ -14,7 +14,7 @@ const healthCheck = async () => {
 
     const peopleToCheck = members.filter(m => isMember(m))
 
-    postOrgaChannel(`**Achtung**: Ich führe den **Mitglieder Health-Check** durch und schaue mir ${peopleToCheck.length} Mitglieder in unserer Vereinsverwaltung an…`);
+    postOrgaChannel(`**Achtung**: Ich führe den **Mitglieder Health-Check** durch und schaue mir ${peopleToCheck.length} Mitglieder in unserer Vereinsverwaltung an…`, 'health-check');
 
     const withoutDiscordAccount = peopleToCheck.filter(m => !m.contactDetails.companyName);
     if (withoutDiscordAccount.length > 0) {
@@ -23,7 +23,7 @@ Von den folgenden **${withoutDiscordAccount.length} Mitgliedern** ist uns **kein
   
 > **${withoutDiscordAccount.map(m => `${m.contactDetails.firstName} ${m.contactDetails.familyName}`).join(', ')}**  
 Kann da jemand unterstützen? Wir sollten diese Anzahl reduzieren.
-`);
+`, 'health-check');
     }
 
     const activeTeams = await strapi.services['api::team.team'].find({ pagination: { page: 1, pageSize: 200 }, filters: { active: { $eq: true } }, sort: ['name:asc'] }, [])
@@ -34,7 +34,7 @@ Kann da jemand unterstützen? Wir sollten diese Anzahl reduzieren.
 > **${activeTeams.results.map(t => `[EGT] ${t.name}`).join(', ')}**  
 Die folgenden Teams sind als **inaktiv** markiert und werden nicht berücksichtigt:
 > **${inactiveTeams.results.map(t => `[EGT] ${t.name}`).join(', ')}**  
-Ich bitte um zeitnahe Info, falls sich hier etwas geändert hat!`);
+Ich bitte um zeitnahe Info, falls sich hier etwas geändert hat!`, 'health-check');
     }
 
     const withDiscordAccount = peopleToCheck.filter(m => m.contactDetails.companyName);
@@ -47,7 +47,7 @@ Ich bitte um zeitnahe Info, falls sich hier etwas geändert hat!`);
       if (!dcMember) {
         postOrgaChannel(`
 🔎 Das ${isActive ? 'aktive' : 'passive'} Mitglied **${m.contactDetails.firstName} ${m.contactDetails.familyName}** konnte ich auf unserem Server nicht finden. 🤷  
-Als Discord-Account ist \`${m.contactDetails.companyName}\` hinterlegt. Vielleicht hat das Mitglied den Account geändert oder den Server verlassen?`
+Als Discord-Account ist \`${m.contactDetails.companyName}\` hinterlegt. Vielleicht hat das Mitglied den Account geändert oder den Server verlassen?`, 'health-check'
         );
         return;
       }
@@ -64,7 +64,7 @@ Als Discord-Account ist \`${m.contactDetails.companyName}\` hinterlegt. Vielleic
         postOrgaChannel(`
 💥 Fehler beim Sammeln der Mitgliederfakten von unserem ${isActive ? 'aktiven' : 'passiven'} Mitglied **${m.contactDetails.firstName} ${getMentionString(dcMember, m)} ${m.contactDetails.familyName}**.  
 \`${facts.error}\`  
-Für den Stacktrace bitte im Serverlog nachsehen.`);
+Für den Stacktrace bitte im Serverlog nachsehen.`, 'health-check');
         return;
       }
 
@@ -78,7 +78,7 @@ ${facts.discordRoles.memberRoleMissing
                 ? 'Bitte abgleichen. Auf jeden Fall **fehlt die Rolle** `Passives Vereinsmitglied`.'
                 : 'Bitte die Rollenzuweisung prüfen, irgendwas passt da nicht.'
             : 'Bitte die Rollenzuweisung prüfen, irgendwas passt da nicht.'
-          }`
+          }`, 'health-check'
         );
         return;
       }
@@ -94,12 +94,12 @@ ${facts.discordRoles.memberRoleMissing
         ];
         postOrgaChannel(`
 🚨 Das passive Mitglied **${m.contactDetails.firstName} ${getMentionString(dcMember, m)} ${m.contactDetails.familyName}** hat Rollen und Verantwortlichkeiten, die eine **aktive Mitgliedschaft erforderlich** machen:  
-> **${jobs.join(', ')}**`);
+> **${jobs.join(', ')}**`, 'health-check');
       }
     })
     return Promise.all(promises).then(() => {
       postOrgaChannel(`
-Alles erledigt. Sorry für den potenziellen Spam. ❤️`);
+Alles erledigt. Sorry für den potenziellen Spam. ❤️`, 'health-check');
     });
 
   } catch (e) {

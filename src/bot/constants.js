@@ -1,6 +1,6 @@
 const prefix = '!egt';
 
-const genericThankWords = [/dank[e]?/i, /thx/i];
+const genericThankWords = ['danke', 'vielen dank', 'thx'];
 const genericThankReplies = ['Gern geschehen.',
   'Bitteschön.',
   'Immer wieder gerne! ✌️',

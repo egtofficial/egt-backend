@@ -1,10 +1,11 @@
 const { sample, words } = require('lodash')
-const { genericFallbackReplies, genericHelloReplies, genericHelloWords, prefix } = require('./constants')
+const { genericFallbackReplies, genericHelloReplies, genericHelloWords, prefix, genericThankWords, genericThankReplies } = require('./constants')
 const info = require('./intents/info');
 const facts = require('./intents/facts');
 const { listEvents, createEvent, deleteEvent } = require('./intents/event');
 const { blue } = require('colors/safe');
-const { wait } = require('../utils');
+const { wait, logIncomingMessage } = require('../utils');
+const { sendMessage } = require('../utils/discord');
 
 const processMessage = async (message) => {
   const messageString = message.content.substr(prefix.length);
@@ -13,8 +14,15 @@ const processMessage = async (message) => {
   const args = messageString.replace(cmd, '').trim() || '';
   console.log(blue(`Incoming command: ${cmd}`), args ? `=> ${args}` : '');
 
+  logIncomingMessage(message)
+
   if (genericHelloWords.includes(cmd.toLowerCase())) {
-    message.channel.send((sample(genericHelloReplies)).replace('{username}', message.author.username));
+    sendMessage(message.channel, message.author, 'generic-hello', sample(genericHelloReplies).replace('{username}', message.author.username))
+    return;
+  }
+
+  if (genericThankWords.includes(cmd.toLowerCase())) {
+    sendMessage(message.channel, message.author, 'generic-thanks', sample(genericThankReplies))
     return;
   }
 
@@ -44,9 +52,9 @@ const processMessage = async (message) => {
   //   }
   // }
 
-  message.channel.send(sample(genericFallbackReplies));
+  sendMessage(message.channel, message.author, 'unknown-command', sample(genericFallbackReplies))
   return wait(2000).then(() => {
-    message.channel.send(`**Mögliche Befehle:**  
+    sendMessage(message.channel, message.author, 'unknown-command', `**Mögliche Befehle:**  
     \`\`\`  
     !egt whoami                  Zeigt deine EGT-Mitgliederinformationen an  
     !egt info  
