@@ -4,8 +4,9 @@ const info = require('./intents/info');
 const facts = require('./intents/facts');
 const { listEvents, createEvent, deleteEvent } = require('./intents/event');
 const { blue } = require('colors/safe');
-const { wait, logIncomingMessage } = require('../utils');
+const { wait } = require('../utils');
 const { sendMessage } = require('../utils/discord');
+const { logIncomingMessage } = require('../utils/logger');
 
 const processMessage = async (message) => {
   const messageString = message.content.substr(prefix.length);

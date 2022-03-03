@@ -1,7 +1,7 @@
-const { formatDateTime, resolveAuthorAndFacts } = require('../../utils');
+const { formatDateTime } = require('../../utils');
 const { startOfDay, parse, addDays, endOfWeek } = require('date-fns');
 const { isNaN } = require('lodash');
-const { sendMessage, postChannel } = require('../../utils/discord');
+const { sendMessage, postChannel, resolveAuthorAndFacts } = require('../../utils/discord');
 
 const stringifyEvent = (event, withId) => `**${withId ? `#${event.id} ` : ''}${event.title}**: ${formatDateTime(event.begin)} _(${event.location})_`;
 

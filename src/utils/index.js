@@ -1,9 +1,7 @@
 const { intersection, find, uniq } = require('lodash')
 const { isSameDay, parseISO, setYear, addDays, differenceInMonths, differenceInYears, formatDistance, format, parseJSON } = require('date-fns');
-const { getMemberships, resolve } = require('../easyverein/index');
 const { de } = require('date-fns/locale');
 const util = require('util');
-const { fetchMemberById, client } = require('./discord');
 
 const attachPrimaryMail = (m) => ({
   ...m,
@@ -194,72 +192,6 @@ const parseDiscordTag = (str) => {
   return matches ? matches[0] : null;
 }
 
-const resolveAuthorAndFacts = async (message) => {
-  const member = await resolve(getDiscordTag(message.author), true);
-  const activeTeams = await strapi.services['api::team.team'].find({ pagination: { page: 1, pageSize: 200 }, filters: { active: { $eq: true } }, sort: ['name:asc'] }, [])
-  const dcMember = await fetchMemberById(message.author.id);
-  const facts = collectMemberFacts(
-    member,
-    dcMember,
-    member.contactDetails.age + 1,
-    undefined,
-    activeTeams.results,
-  )
-  return {
-    member,
-    dcMember,
-    facts,
-  }
-}
-
-const logIncomingMessage = async (message, reason) => {
-  const discordUserName = getDiscordTag(message.author)
-  const member = await resolve(discordUserName, true);
-
-  return strapi.service('api::message.message').create({
-    data: {
-      messageId: message.id,
-      discordUserId: message.author.id,
-      discordUserName,
-      type: 'incoming',
-      reason,
-      content: message.content,
-      channelId: message.channel.id,
-      channelName: message.channel.name,
-      ...(member ? {
-        memberId: member.id,
-        memberNumber: member.membershipNumber,
-        memberFullName: `${member.contactDetails.firstName} ${member.contactDetails.familyName}`,
-        memberMail: member.email,
-      } : undefined)
-    }
-  });
-}
-
-const logOutgoingMessage = async (message, recipient, reason) => {
-  const discordUserName = recipient ? getDiscordTag(recipient) : null
-  const member = recipient ? await resolve(discordUserName, true) : null;
-
-  return strapi.service('api::message.message').create({
-    data: {
-      messageId: message.id,
-      discordUserId: recipient ? recipient.id : null,
-      discordUserName,
-      type: 'outgoing',
-      reason,
-      content: message.content,
-      channelId: message.channel.id,
-      channelName: message.channel.name,
-      ...(member ? {
-        memberId: member.id,
-        memberNumber: member.membershipNumber,
-        memberFullName: `${member.contactDetails.firstName} ${member.contactDetails.familyName}`,
-        memberMail: member.email,
-      } : undefined)
-    }
-  });
-}
-
 module.exports = {
   attachPrimaryMail,
   hasBirthday,
@@ -275,7 +207,4 @@ module.exports = {
   getDiscordTag,
   wait,
   parseDiscordTag,
-  resolveAuthorAndFacts,
-  logIncomingMessage,
-  logOutgoingMessage
 };

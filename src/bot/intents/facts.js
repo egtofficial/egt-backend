@@ -2,7 +2,7 @@ const { getMemberships, resolve } = require('../../easyverein/index');
 const { formatDate, getDiscordTag, parseDiscordTag, wait, collectMemberFacts, getMentionString } = require('../../utils');
 const { green, red, yellow } = require('colors/safe');
 const config = require('../../easyverein/config');
-const { fetchMember, fetchMemberById } = require('../../utils/discord');
+const { fetchMember, guild } = require('../../utils/discord');
 
 const facts = async (message, name) => {
   console.log(`Incoming intend facts for target ${name || 'self'}…`);
@@ -100,7 +100,7 @@ ${JSON.stringify(facts, null, 2)}
 
   console.log(green(`Successfully resolved ${authorDiscordTag}.`));
 
-  const dcMember = await fetchMemberById(message.author.id);
+  const dcMember = await guild.members.fetch(message.author.id);
   let facts;
   if (dcMember) {
     facts = collectMemberFacts(

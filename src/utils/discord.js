@@ -1,5 +1,7 @@
 const { Client, Intents } = require('discord.js');
-const { logOutgoingMessage } = require('.');
+const { getDiscordTag, collectMemberFacts } = require('.');
+const { resolve } = require('../easyverein');
+const { logOutgoingMessage } = require('./logger');
 
 let dClient = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGES],
@@ -28,8 +30,6 @@ const fetchMember = async (discordTag) => {
   const members = await guild.members.search({ query: parts[0], limit: 1 })
   return members.first()
 }
-
-const fetchMemberById = (id) => guild.members.fetch(id);
 
 const postOrgaChannel = (content, reason) => {
   if (process.env.SIMULATE_POSTS === 'true') {
@@ -82,15 +82,33 @@ const sendMessage = async (channel, recipient, reason, content) => {
   return message
 }
 
+const resolveAuthorAndFacts = async (message) => {
+  const member = await resolve(getDiscordTag(message.author), true);
+  const activeTeams = await strapi.services['api::team.team'].find({ pagination: { page: 1, pageSize: 200 }, filters: { active: { $eq: true } }, sort: ['name:asc'] }, [])
+  const dcMember = await guild.members.fetch(message.author.id);
+  const facts = collectMemberFacts(
+    member,
+    dcMember,
+    member.contactDetails.age + 1,
+    undefined,
+    activeTeams.results,
+  )
+  return {
+    member,
+    dcMember,
+    facts,
+  }
+}
+
 module.exports = {
   client: dClient,
   guild,
   postOrgaChannel,
   fetchGuild,
   fetchMember,
-  fetchMemberById,
   sendMessage,
   sendPrivateMessage,
   sendPrivateMessageByUsername,
   postChannel,
+  resolveAuthorAndFacts
 };
