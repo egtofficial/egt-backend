@@ -15,6 +15,13 @@ module.exports = {
       'longName': 'Aktives Mitglied (Halbjährliche Zahlungsweise)',
       'description': 'aktives Mitglied mit halbjährlichen Beitragszahlungen',
     },
+    'AMJM': {
+      'discordRoleId': -1,
+      'short': 'active',
+      'roleName': 'Aktives Mitglied',
+      'longName': 'Aktives Mitglied (Jährliche Zahlungsweise)',
+      'description': 'aktives Mitglied mit jährlichen Beitragszahlungen',
+    },
     'PM': {
       'discordRoleId': -1,
       'short': 'passive',

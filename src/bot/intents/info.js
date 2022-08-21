@@ -112,7 +112,7 @@ const info = async (message, name) => {
 
   console.log(green(`Successfully resolved ${authorDiscordTag}.`));
 
-  const dcMember = await guild.members.fetch(message.author.id);
+  const dcMember = await fetchMember(`${message.author.username}#${message.author.discriminator}`)
   // let facts;
   // if (dcMember) {
   //   facts = collectMemberFacts(
